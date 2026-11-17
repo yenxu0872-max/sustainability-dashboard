@@ -1,0 +1,5 @@
+Label,Value,Unit,Note,Icon,Up to,Previous,Compared with,Lower is better,Image,Work out from,How,Multiply by
+Plants on the living wall,180,,counted this month,nature,2026-11-02,120,last month,no,images/sample-living-wall.svg,project:living-wall,now,
+Rainwater collected,9900,litres,since July,water,2026-10-31,,,no,images/sample-rain.svg,chart:Rainwater collected each month,total,
+Solar electricity made,735930,kWh,since June (our estimate),energy,2026-10-31,,,no,images/sample-solar.svg,chart:Solar electricity made each month,total,
+Food grown on the farm,68,kg,since June,food,2026-10-31,,,no,images/sample-garden.svg,chart:Food harvested each month,total,

@@ -1,0 +1,15 @@
+Chart,Unit,Lower is better,Target,Icon,Note,Label,Value
+Rainwater collected each month,litres,no,,water,Read from the water meter on each tank.,Jul,1350
+Rainwater collected each month,,,,,,Aug,2100
+Rainwater collected each month,,,,,,Sep,2850
+Rainwater collected each month,,,,,,Oct,3600
+Solar electricity made each month,kWh,no,,energy,"Our estimate: 4,810 square metres of panels, 20% efficiency, 5 hours of full sun a day.",Jun,144300
+Solar electricity made each month,,,,,,Jul,149110
+Solar electricity made each month,,,,,,Aug,149110
+Solar electricity made each month,,,,,,Sep,144300
+Solar electricity made each month,,,,,,Oct,149110
+Food harvested each month,kg,no,,food,Every harvest is weighed on kitchen scales.,Jun,6
+Food harvested each month,,,,,,Jul,11
+Food harvested each month,,,,,,Aug,9
+Food harvested each month,,,,,,Sep,18
+Food harvested each month,,,,,,Oct,24

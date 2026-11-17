@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal Embed Example</title>
+  <meta name="robots" content="noindex">
+  <style>
+    body { margin: 0; padding: 24px 16px; background: #eef0f3; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1d232a; }
+    main { max-width: 1100px; margin: 0 auto; display: grid; gap: 24px; }
+    h1 { font-size: 20px; margin: 0; }
+    h2 { font-size: 15px; margin: 0 0 8px; }
+    p { margin: 0 0 8px; color: #4a525c; }
+    .box { background: #fff; border-radius: 12px; padding: 16px; }
+    .two { display: grid; gap: 24px; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+    @media (max-width: 800px) { .two { grid-template-columns: 1fr; } }
+    pre { background: #f5f6f8; padding: 12px; border-radius: 8px; overflow: auto; font-size: 13px; margin: 8px 0 0; }
+  </style>
+</head>
+<body>
+  <!--
+    This page shows IT how the dashboard looks inside another web page
+    (like the school portal). Copy the <iframe> code you need.
+  -->
+  <main>
+    <div>
+      <h1>Portal embed example</h1>
+      <p>This is a stand-in for a school portal page. Below are the two ways to embed the dashboard.</p>
+    </div>
+
+    <div class="two">
+      <section class="box">
+        <h2>1. Full dashboard (main content area)</h2>
+        <p>Grows to fit its content when the portal allows the small script below; otherwise it scrolls inside a fixed height.</p>
+        <iframe class="sustainability-dashboard" src="index.html?mode=embed" title="Sustainability Dashboard"
+                style="width:100%;height:900px;border:0;display:block" loading="lazy"></iframe>
+      </section>
+
+      <section class="box">
+        <h2>2. Summary widget (sidebar or home page)</h2>
+        <p>Headline numbers and a one-line progress bar per project, with a link to the full dashboard.</p>
+        <iframe class="sustainability-dashboard" src="index.html?mode=embed&amp;view=summary&amp;bg=transparent" title="Sustainability progress"
+                style="width:100%;height:760px;border:0;display:block" loading="lazy"></iframe>
+      </section>
+    </div>
+
+    <section class="box">
+      <h2>Code to copy</h2>
+      <p>Replace <code>https://YOUR-DASHBOARD-ADDRESS/</code> with wherever the dashboard is hosted (it must be <strong>https</strong>).</p>
+<pre>&lt;iframe class="sustainability-dashboard"
+        src="https://YOUR-DASHBOARD-ADDRESS/index.html?mode=embed"
+        title="Sustainability Dashboard"
+        style="width:100%;height:900px;border:0;display:block"
+        loading="lazy"&gt;&lt;/iframe&gt;
+
+&lt;!-- Optional: lets the iframe grow to fit. Skip it if the portal doesn't allow scripts. --&gt;
+&lt;script&gt;
+window.addEventListener("message", function (e) {
+  if (!e.data || e.data.type !== "sustainability-dashboard:height") return;
+  document.querySelectorAll("iframe.sustainability-dashboard").forEach(function (f) {
+    if (f.contentWindow === e.source) f.style.height = e.data.height + "px";
+  });
+});
+&lt;/script&gt;</pre>
+    </section>
+  </main>
+
+  <script>
+    // The optional auto-height script, live on this example page.
+    window.addEventListener("message", function (e) {
+      if (!e.data || e.data.type !== "sustainability-dashboard:height") return;
+      document.querySelectorAll("iframe.sustainability-dashboard").forEach(function (f) {
+        if (f.contentWindow === e.source) f.style.height = e.data.height + "px";
+      });
+    });
+  </script>
+</body>
+</html>
