@@ -1893,3 +1893,6 @@ span.involve-qr { display: block; padding: 0; }
 .tv-main.is-houses .cup-row-score { font-size: 1.05rem; }
 .tv-main.is-houses .cup-bar { height: 0.6rem; }
 .tv .cup-tv-podium .panel-icon, .tv .cup-tv-table .panel-icon { display: none; }
+
+/* No category and stage label over the pictures on the TV's project cards (removed at the group's request) */
+.tv .card-meta { display: none; }
