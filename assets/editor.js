@@ -54,7 +54,8 @@
       d[k] = (Array.isArray(d[k]) ? d[k] : []).map(function (x) { x._key = newKey(); return x; });
     });
     ["events", "trends", "tips", "gallery"].forEach(function (k) { if (!Array.isArray(d[k])) d[k] = []; });
-    d.leaderboard = Object.assign({ title: "", unit: "", note: "", entries: [] }, d.leaderboard || {});
+    d.leaderboard = Object.assign({ title: "", unit: "", note: "", season: "", entries: [], challenges: [], results: [] }, d.leaderboard || {});
+    ["challenges", "results"].forEach(function (k) { if (!Array.isArray(d.leaderboard[k])) d.leaderboard[k] = []; });
     // Screen settings (Screens tab): "" means IT's standard setting in config.js
     d.display = Object.assign({}, d.display || {});
     DISPLAY_KEYS.forEach(function (k) { var v = d.display[k]; d.display[k] = v === null || v === undefined ? "" : String(v); });
@@ -97,7 +98,9 @@
     milestones: function () { return { title: "", date: "", done: false }; },
     gallery: function () { return { image: "", imageAlt: "", caption: "" }; },
     points: function () { return { label: "", value: "" }; },
-    entries: function () { return { name: "", score: "" }; },
+    entries: function () { return { name: "", score: "", type: "", lastWeek: "", colour: "" }; },
+    challenges: function () { return { id: "challenge-" + Date.now().toString(36), title: "", category: "other", rule: "" }; },
+    results: function () { return { date: SD.todayISO(), house: "", challenge: "", points: "", text: "" }; },
     tips: function () { return ""; },
     trends: function () { return { title: "", unit: "", icon: "other", direction: "down", target: "", note: "", points: [{ label: "", value: "" }, { label: "", value: "" }] }; }
   };
@@ -134,6 +137,14 @@
     // Only the screen settings that were actually chosen
     Object.keys(clean.display).forEach(function (k) { if (clean.display[k] === null || clean.display[k] === "") delete clean.display[k]; });
     if (!Object.keys(clean.display).length) delete clean.display;
+    // The house competition: points per challenge are kept; the total and its parts are worked out again
+    clean.leaderboard.entries.forEach(function (e) {
+      delete e.parts;
+      if (e.points) delete e.score; else delete e.points;
+      if (e.lastWeek === null) delete e.lastWeek;
+      if (!e.colour) delete e.colour;
+      if (!e.type) delete e.type;
+    });
     return clean;
   }
 
@@ -708,29 +719,65 @@
   }
 
   function sectionLeaderboard() {
-    var lb = state.data.leaderboard;
+    var lb = state.data.leaderboard, ch = lb.challenges, split = ch.length > 0;
     var list = "leaderboard.entries";
     var rows = lb.entries.map(function (e, i) {
+      var base = list + "." + i + ".";
+      if (split && (!e.points || typeof e.points !== "object")) e.points = {};
+      var total = split ? ch.reduce(function (a, c) { return a + (SD.toNumber(e.points[c.id]) || 0); }, 0) : 0;
       return (
-        '<div class="ed-row entry-row">' +
-          field({ label: "Name", path: list + "." + i + ".name", compact: true, placeholder: "e.g. Kingfisher House" }) +
-          field({ label: "Score", path: list + "." + i + ".score", compact: true, number: true }) +
-          rowButtons(list, i, lb.entries.length, "entry") +
-          '<div class="ed-row-picture">' + pictureMini(list + "." + i + ".image", "Badge or crest") + "</div>" +
+        '<div class="ed-card" style="margin-top:0.75rem">' +
+          '<div class="ed-row entry-row">' +
+            field({ label: "Name", path: base + "name", compact: true, placeholder: "e.g. Sheppard" }) +
+            (split ? '<span class="ed-hint" style="align-self:center">Total: <strong>' + SD.formatNumber(total) + "</strong> (adds up the challenges)</span>"
+                   : field({ label: "Score", path: base + "score", compact: true, number: true })) +
+            rowButtons(list, i, lb.entries.length, "house") +
+            '<div class="ed-row-picture">' + pictureMini(base + "image", "Badge or crest") + "</div>" +
+          "</div>" +
+          '<div class="ed-grid">' +
+            field({ label: "Type", path: base + "type", optional: true, placeholder: "e.g. Day house" }) +
+            field({ label: "Place last week", path: base + "lastWeek", number: true, optional: true, hint: "Shows an up or down arrow." }) +
+            field({ label: "House colour", path: base + "colour", optional: true, placeholder: "e.g. #6EBF50", hint: "A ring around the crest." }) +
+            (split ? ch.map(function (c) { return field({ label: (c.title || "Challenge") + ": points", path: base + "points." + c.id, number: true }); }).join("") : "") +
+          "</div>" +
         "</div>"
       );
     }).join("");
+    var chRows = ch.map(function (c, j) {
+      var b = "leaderboard.challenges." + j + ".";
+      return (
+        '<div class="ed-card" style="margin-top:0.75rem"><div class="ed-grid" style="margin-top:0">' +
+          field({ label: "Challenge", path: b + "title", placeholder: "e.g. Switch-off checks" }) +
+          field({ label: "Colour", path: b + "category", type: "select", options: CATEGORY_OPTIONS }) +
+          field({ label: "How points are earned", path: b + "rule", wide: true, limit: 140, placeholder: "e.g. Up to 30 points for each surprise check." }) +
+        "</div>" + rowButtons("leaderboard.challenges", j, ch.length, "challenge") + "</div>"
+      );
+    }).join("");
+    var houseOpts = [{ value: "", label: "Choose a house" }].concat(lb.entries.filter(function (e) { return e.name; }).map(function (e) { return { value: e.name, label: e.name }; }));
+    var chOpts = [{ value: "", label: "No challenge" }].concat(ch.map(function (c) { return { value: c.id, label: c.title || c.id }; }));
+    var resRows = lb.results.map(function (r, j) {
+      var b = "leaderboard.results." + j + ".";
+      return (
+        '<div class="ed-card" style="margin-top:0.75rem"><div class="ed-grid" style="margin-top:0">' +
+          field({ label: "Date", path: b + "date", type: "date" }) +
+          field({ label: "House", path: b + "house", type: "select", options: houseOpts }) +
+          field({ label: "Challenge", path: b + "challenge", type: "select", options: chOpts }) +
+          field({ label: "Points won", path: b + "points", number: true }) +
+          field({ label: "What happened", path: b + "text", wide: true, limit: 140, placeholder: "e.g. A perfect switch-off check in the common room." }) +
+        "</div>" + rowButtons("leaderboard.results", j, lb.results.length, "result") + "</div>"
+      );
+    }).join("");
     return (
-      sectionHead("Leaderboard", "A friendly competition between houses, tutor groups or year groups. It's sorted by score automatically. Leave it empty to hide it.") +
+      sectionHead("Leaderboard", "The house competition. Houses are sorted by points automatically. With challenges, each house's points are added up from them. Leave it empty to hide it.") +
       '<div class="ed-card"><div class="ed-grid" style="margin-top:0">' +
-        field({ label: "Title", path: "leaderboard.title", wide: true, placeholder: "e.g. Switch Off Challenge: house league" }) +
+        field({ label: "Title", path: "leaderboard.title", wide: true, placeholder: "e.g. House Sustainability Cup" }) +
         field({ label: "Unit", path: "leaderboard.unit", placeholder: "points" }) +
-        field({ label: "Small note", path: "leaderboard.note", optional: true, placeholder: "e.g. Updated every Friday." }) +
-      "</div>" +
-      '<div class="ed-sub-label" style="margin-top:1.25rem">Scores</div>' +
-      (rows ? '<div class="ed-row-head entry-row"><span>Name</span><span>Score</span><span></span></div>' + rows : "") +
-      addButton(list, "Add a team", "is-small") +
-      "</div>"
+        field({ label: "Term or week", path: "leaderboard.season", optional: true, placeholder: "e.g. Michaelmas term 2026, week 11 of 14" }) +
+        field({ label: "Small note", path: "leaderboard.note", optional: true, wide: true, placeholder: "e.g. Points are added up every Friday." }) +
+      "</div></div>" +
+      '<div class="ed-sub-label" style="margin-top:1.25rem">Challenges</div>' + chRows + addButton("leaderboard.challenges", "Add a challenge", "is-small") +
+      '<div class="ed-sub-label" style="margin-top:1.25rem">Houses</div>' + rows + addButton(list, "Add a house", "is-small") +
+      '<div class="ed-sub-label" style="margin-top:1.25rem">Latest points</div>' + resRows + addButton("leaderboard.results", "Add a result", "is-small")
     );
   }
 

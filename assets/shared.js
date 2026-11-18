@@ -478,13 +478,31 @@
       };
     }).filter(function (t) { return t.points.length; });
 
-    // A competition table, highest score first.
+    // A competition table, highest score first. It can be split into challenges: then each team
+    // has points for each challenge ("points": { challengeId: n }), and its score is their sum.
     var lb = raw.leaderboard || {};
+    var challenges = listOf(lb.challenges).filter(function (c) { return c && str(c.title); }).map(function (c, i) {
+      return { id: str(c.id) || slugify(c.title) || "challenge-" + (i + 1), title: str(c.title), category: SD.categoryKey(c.category) || "other", rule: str(c.rule) };
+    });
     out.leaderboard = {
-      title: str(lb.title), unit: str(lb.unit), note: str(lb.note),
-      entries: listOf(lb.entries).filter(function (e) { return e && str(e.name) && toNumber(e.score) !== null; })
-        .map(function (e) { return { name: str(e.name), score: toNumber(e.score), image: SD.safeImage(e.image) }; })
-        .sort(function (a, b) { return b.score - a.score; })
+      title: str(lb.title), unit: str(lb.unit), note: str(lb.note), season: str(lb.season),
+      challenges: challenges,
+      entries: listOf(lb.entries).filter(function (e) { return e && str(e.name); }).map(function (e) {
+        var pts = e.points && typeof e.points === "object" ? e.points : null;
+        var parts = challenges.map(function (c) { return pts ? toNumber(pts[c.id]) || 0 : 0; });
+        var split = !!(pts && challenges.length);
+        var colour = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(str(e.colour)) ? str(e.colour) : "";
+        return {
+          name: str(e.name), type: str(e.type), image: SD.safeImage(e.image), colour: colour,
+          lastWeek: toNumber(e.lastWeek), parts: split ? parts : [],
+          points: split ? challenges.reduce(function (o, c, k) { o[c.id] = parts[k]; return o; }, {}) : null,
+          score: split ? parts.reduce(function (a, b) { return a + b; }, 0) : toNumber(e.score)
+        };
+      }).filter(function (e) { return e.score !== null; })
+        .sort(function (a, b) { return b.score - a.score; }),
+      results: listOf(lb.results).filter(function (r) { return r && (str(r.text) || str(r.house)); }).map(function (r) {
+        return { date: str(r.date), house: str(r.house), challenge: str(r.challenge), points: toNumber(r.points), text: str(r.text) };
+      }).sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); })
     };
 
     // Screen settings chosen in the editor's Screens tab. Empty (null) means "use config.js".

@@ -636,6 +636,142 @@
       (lb.note ? '<p class="panel-note">' + esc(lb.note) + "</p>" : ""));
   }
 
+  /* ---------- The house competition: podium, full table, challenges, latest points ---------- */
+
+  function ordinal(n) { var s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  var NUMBER_WORDS = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  function word(n) { return NUMBER_WORDS[n] || String(n); }
+  function wordList(a) { return a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1]; }
+  function houseStyle(e) { return e.colour ? ' style="--house:' + esc(e.colour) + '"' : ""; }
+  // A house's crest: the picture when there is one, else its first letter
+  function crestHtml(e, cls) {
+    return '<span class="crest' + (cls ? " " + cls : "") + '"' + houseStyle(e) + ">" +
+      (e.image ? '<img src="' + esc(e.image) + '" alt="" loading="lazy">' : '<span class="crest-letter">' + esc(String(e.name || "?").charAt(0).toUpperCase()) + "</span>") + "</span>";
+  }
+  // Up or down since last week
+  function moveHtml(e, i) {
+    if (e.lastWeek === null || e.lastWeek === undefined) return "";
+    var d = e.lastWeek - (i + 1);
+    if (d > 0) return '<span class="cup-move is-up" title="Up ' + d + " since last week\">" + icon("up") + '<span class="visually-hidden">up </span>' + d + "</span>";
+    if (d < 0) return '<span class="cup-move is-down" title="Down ' + -d + " since last week\">" + icon("down") + '<span class="visually-hidden">down </span>' + -d + "</span>";
+    return '<span class="cup-move is-same" title="Same place as last week"><span aria-hidden="true">=</span><span class="visually-hidden">same place</span></span>';
+  }
+  // One bar per house, split into the challenges' colours (or a single bar without challenges)
+  function cupBarHtml(e, lb, max) {
+    if (!e.parts.length) return '<div class="league-bar"><span style="width:' + Math.max(2, e.score / max * 100).toFixed(1) + '%"></span></div>';
+    return '<div class="cup-bar" role="img" aria-label="' + esc(lb.challenges.map(function (c, k) { return c.title + " " + SD.formatNumber(e.parts[k]); }).join(", ")) + '">' +
+      lb.challenges.map(function (c, k) {
+        var v = e.parts[k];
+        return v ? '<span class="cat-' + c.category + '" style="width:' + (v / max * 100).toFixed(2) + '%" title="' + esc(c.title + ": " + SD.formatNumber(v) + (lb.unit ? " " + lb.unit : "")) + '"></span>' : "";
+      }).join("") + "</div>";
+  }
+  function cupLegendHtml(lb) {
+    return lb.challenges.length ? '<ul class="cup-legend">' + lb.challenges.map(function (c) { return '<li><span class="cup-swatch cat-' + c.category + '"></span>' + esc(c.title) + "</li>"; }).join("") + "</ul>" : "";
+  }
+  // Which challenges each house is winning
+  function challengeLeaders(lb) {
+    var leads = {};
+    lb.challenges.forEach(function (c, k) {
+      var best = null;
+      lb.entries.forEach(function (e) { if (!best || e.parts[k] > best.parts[k]) best = e; });
+      if (best && best.parts[k] > 0) (leads[best.name] = leads[best.name] || []).push(c.title);
+    });
+    return leads;
+  }
+  function podiumHtml(lb) {
+    var E = lb.entries, leads = challengeLeaders(lb);
+    return '<div class="cup-podium">' + E.slice(0, 3).map(function (e, i) {
+      var gap = i === 0 ? (E[1] ? SD.formatNumber(e.score - E[1].score) + " ahead" : "") : SD.formatNumber(E[0].score - e.score) + " behind";
+      return (
+        '<article class="cup-place place-' + (i + 1) + '"' + houseStyle(e) + ">" +
+          '<div class="cup-banner">' + (e.image ? '<img src="' + esc(e.image) + '" alt="' + esc(e.name) + ' crest">' : '<span class="crest-letter">' + esc(e.name.charAt(0)) + "</span>") +
+            '<span class="cup-medal">' + ordinal(i + 1) + "</span></div>" +
+          '<div class="cup-place-body">' +
+            '<h3 class="cup-name">' + esc(e.name) + (i === 0 ? doodle("crown", "league-crown") : "") + "</h3>" +
+            (e.type ? '<p class="cup-type">' + esc(e.type) + "</p>" : "") +
+            '<p class="cup-total"><strong>' + circled(SD.formatNumber(e.score), "league:" + e.name) + "</strong>" + (lb.unit ? " " + esc(lb.unit) : "") + "</p>" +
+            '<p class="cup-meta">' + moveHtml(e, i) + (gap ? "<span>" + gap + "</span>" : "") + "</p>" +
+            (leads[e.name] ? '<p class="cup-leads">Leads in ' + esc(wordList(leads[e.name])) + "</p>" : "") +
+          "</div>" +
+        "</article>"
+      );
+    }).join("") + "</div>";
+  }
+  function cupTableHtml(lb, limit) {
+    var E = lb.entries.slice(0, limit || lb.entries.length), max = Math.max.apply(null, lb.entries.map(function (e) { return e.score; }).concat([1]));
+    return '<ol class="cup-rows">' + E.map(function (e, i) {
+      return (
+        '<li class="cup-row' + (i === 0 ? " is-first" : "") + '">' +
+          '<span class="cup-rank">' + (i + 1) + "</span>" + '<span class="cup-move-cell">' + moveHtml(e, i) + "</span>" + crestHtml(e, "cup-crest") +
+          '<div class="cup-row-main"><div class="cup-row-head"><span class="cup-row-name">' + esc(e.name) + (e.type ? '<span class="cup-row-type">' + esc(e.type) + "</span>" : "") + "</span>" +
+            '<span class="cup-row-score">' + circled(withUnit(e.score, lb.unit), "league:" + e.name) + "</span></div>" + cupBarHtml(e, lb, max) + "</div>" +
+          '<span class="cup-gap">' + (i === 0 ? "Leader" : "−" + SD.formatNumber(lb.entries[0].score - e.score)) + "</span>" +
+        "</li>"
+      );
+    }).join("") + "</ol>";
+  }
+  function cupResultsHtml(lb, n) {
+    if (!lb.results.length) return "";
+    var byName = {}, byId = {};
+    lb.entries.forEach(function (e) { byName[e.name.toLowerCase()] = e; });
+    lb.challenges.forEach(function (c) { byId[c.id] = c; });
+    return '<ul class="cup-results">' + lb.results.slice(0, n).map(function (r) {
+      var e = byName[r.house.toLowerCase()] || { name: r.house, image: "", colour: "" }, c = byId[r.challenge];
+      return (
+        '<li class="cup-result">' + crestHtml(e, "cup-mini") +
+          '<div class="cup-result-main"><p class="cup-result-head"><strong>' + esc(e.name) + "</strong>" +
+            (r.points !== null ? '<span class="cup-plus">+' + SD.formatNumber(r.points) + "</span>" : "") +
+            (c ? '<span class="cup-result-ch cat-' + c.category + '">' + esc(c.title) + "</span>" : "") +
+            (r.date ? '<span class="cup-result-date">' + esc(shortDate(r.date)) + "</span>" : "") + "</p>" +
+            (r.text ? '<p class="cup-result-text">' + esc(r.text) + "</p>" : "") +
+          "</div>" +
+        "</li>"
+      );
+    }).join("") + "</ul>";
+  }
+  function cupChallengesHtml(lb) {
+    if (!lb.challenges.length) return "";
+    return '<div class="cup-challenges">' + lb.challenges.map(function (c, k) {
+      var top = lb.entries.slice().sort(function (a, b) { return b.parts[k] - a.parts[k]; }).slice(0, 3), best = (top[0] && top[0].parts[k]) || 1;
+      return (
+        '<article class="cup-challenge cat-' + c.category + '">' +
+          '<div class="cup-challenge-head">' + catIconHtml(c.category) + "<h3>" + esc(c.title) + "</h3></div>" +
+          (c.rule ? '<p class="cup-rule">' + esc(c.rule) + "</p>" : "") +
+          '<ol class="cup-top">' + top.map(function (e) {
+            return "<li>" + crestHtml(e, "cup-mini") + '<span class="cup-top-name">' + esc(e.name) + "</span>" +
+              '<span class="cup-top-bar"><span style="width:' + (e.parts[k] / best * 100).toFixed(1) + '%"></span></span>' +
+              '<span class="cup-top-pts">' + SD.formatNumber(e.parts[k]) + "</span></li>";
+          }).join("") + "</ol>" +
+        "</article>"
+      );
+    }).join("") + "</div>";
+  }
+  // The whole competition, as its own section of the web page
+  function houseCupSectionHtml(data) {
+    var lb = data.leaderboard;
+    if (!lb.entries.length) return "";
+    var sub = [lb.title, lb.season].filter(Boolean).join(" · ");
+    return sectionHtml("houses", "",
+      sectionHeadHtml("houses", "The house <em>cup</em>", sub || "Every house, every challenge, every point.", "", lb.entries[0].name + " on top!") +
+      podiumHtml(lb) +
+      '<div class="cup-grid">' +
+        '<section class="panel cup-table" aria-labelledby="cup-table-heading"><div class="cup-table-head"><h3 id="cup-table-heading">' + liveIcon("trophy") + "Full table</h3>" + cupLegendHtml(lb) + "</div>" + cupTableHtml(lb) + "</section>" +
+        (lb.results.length ? '<section class="panel cup-latest" aria-labelledby="cup-latest-heading"><h3 id="cup-latest-heading">' + liveIcon("news") + "Latest points</h3>" + cupResultsHtml(lb, 6) + "</section>" : "") +
+      "</div>" +
+      (lb.challenges.length ? '<h3 class="cup-sub">The ' + (lb.challenges.length === 1 ? "challenge" : word(lb.challenges.length) + " challenges") + ", and who is winning each</h3>" + cupChallengesHtml(lb) : "") +
+      (lb.note ? '<p class="cup-note">' + esc(lb.note) + "</p>" : ""));
+  }
+  // The competition on the TV: the top three and the latest points, beside the full table
+  function tvHousesItems(data) {
+    var lb = data.leaderboard;
+    if (!lb.entries.length) return [];
+    return [
+      '<section class="panel tv-panel cup-tv-podium" aria-label="' + esc(lb.title || "House competition") + '"><h2><span class="panel-icon">' + liveIcon("trophy") + "</span>" + esc(lb.title || "House competition") + "</h2>" +
+        (lb.season ? '<p class="cup-tv-season">' + esc(lb.season) + "</p>" : "") + podiumHtml(lb) + cupResultsHtml(lb, 1) + "</section>",
+      '<section class="panel tv-panel cup-tv-table" aria-label="The full table"><div class="cup-table-head"><h2><span class="panel-icon">' + liveIcon("chart") + "</span>The full table</h2>" + cupLegendHtml(lb) + "</div>" + cupTableHtml(lb) + "</section>"
+    ];
+  }
+
   function tipHtml(data) {
     var tip = SD.tipOfTheDay(data);
     return tip ? '<div class="inset"><strong>' + liveIcon("bulb") + 'Eco tip of the day</strong> <p class="inset-note">' + esc(tip) + "</p></div>" : "";
@@ -1001,10 +1137,10 @@
   // Section titles follow the school website: a small capitals label, then a big serif
   // title with one word in italics (titles are written in the code, so they can hold <em>).
   // Each section's italic word gets its own highlighter stroke.
-  var SECTION_INK = { headlines: "underline", projects: "wave", gallery: "loop", news: "double", trends: "underline", standings: "wave", about: "loop" };
+  var SECTION_INK = { headlines: "underline", projects: "wave", gallery: "loop", news: "double", trends: "underline", houses: "double", standings: "wave", about: "loop" };
   var SECTION_LABEL = {
     headlines: "Headlines", projects: "Projects", gallery: "Photos", news: "Events and news",
-    trends: "Progress over time", standings: "League and status", about: "About this data"
+    trends: "Progress over time", houses: "House competition", standings: "Project status", about: "About this data"
   };
 
   function sectionHeadHtml(id, titleHtml, sub, right, scribble) {
@@ -1101,7 +1237,8 @@
         : '<div class="projects">' + shown.map(function (p) { return cardHtml(p); }).join("") + "</div>";
 
     var happening = eventsHtml(data, 4) + updatesHtml(data, 5) + involveHtml(data);
-    var standing = leaderboardHtml(data) + progressPanelHtml(projects);
+    var cup = houseCupSectionHtml(data);          // the house competition has its own section
+    var standing = progressPanelHtml(projects);
     var stats = statsHtml(data);
     var about = aboutHtml(data);
     // [section id, short name for the menu bar]
@@ -1110,7 +1247,8 @@
     if (data.gallery.length) sections.push(["gallery", "Photos"]);
     if (happening) sections.push(["news", "News"]);
     if (data.trends.length) sections.push(["trends", "Progress"]);
-    sections.push(["standings", data.leaderboard.entries.length ? "League" : "Status"]);
+    if (cup) sections.push(["houses", "Houses"]);
+    sections.push(["standings", "Status"]);
     if (about) sections.push(["about", "About"]);
     // A deep navy footer like the school website's: logo, quick links to each section, contact.
     var d = data.dashboard, contact = contactHtml(d);
@@ -1148,8 +1286,9 @@
         galleryHtml(data) +
         (happening ? sectionHtml("news", "", sectionHeadHtml("news", "What's <em>happening</em>?", "What's coming up, and what's happened recently.") + '<div class="extras">' + happening + "</div>") : "") +
         trendsSectionHtml(data) +
+        cup +
         sectionHtml("standings", "",
-          sectionHeadHtml("standings", data.leaderboard.entries.length ? "Who's <em>leading</em>?" : "Where projects <em>stand</em>", data.leaderboard.entries.length ? "Who's leading the challenge, and where every project stands." : "Where every project stands.") +
+          sectionHeadHtml("standings", "Where projects <em>stand</em>", "Where every project stands.") +
           '<div class="extras">' + standing + "</div>") +
         about +
         footer +
@@ -1594,7 +1733,9 @@
     }
     if (data.gallery.length) pages.push({ type: "photos", items: data.gallery.slice(0, cols) });
     if (data.trends.length) pages.push({ type: "trends", items: data.trends.slice(0, cols) });
-    var highlights = [leaderboardHtml(data, "tv-panel"), eventsHtml(data, 4)].filter(Boolean);
+    var houses = tvHousesItems(data);
+    if (houses.length) pages.push({ type: "houses", items: houses });
+    var highlights = [houses.length ? "" : leaderboardHtml(data, "tv-panel"), eventsHtml(data, 4)].filter(Boolean);
     if (highlights.length) pages.push({ type: "highlights", items: highlights });
     return pages;
   }
@@ -1764,6 +1905,9 @@
       } else if (page.type === "trends") {
         state.tvLayout = { cols: page.items.length, cls: "is-trends" };
         grid.innerHTML = page.items.map(function (t, i) { return trendCardHtml(t, i, "tv-panel"); }).join("");
+      } else if (page.type === "houses") {
+        state.tvLayout = { cols: page.items.length, cls: "is-houses" };
+        grid.innerHTML = page.items.join("");
       } else {
         state.tvLayout = { cols: page.items.length, cls: "is-highlights" };
         grid.innerHTML = page.items.join("");

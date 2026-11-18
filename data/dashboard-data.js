@@ -500,29 +500,226 @@ window.DASHBOARD_DATA = {
     }
   ],
   "leaderboard": {
-    "title": "Farm league: harvest by house",
-    "unit": "kg",
-    "note": "Each house looks after a bed. Every harvest is weighed and added to the house's total.",
+    "title": "House Sustainability Cup",
+    "unit": "points",
+    "season": "Michaelmas term 2026, week 11 of 14",
+    "note": "All ten senior houses compete in five challenges. Points are added up every Friday, and the house with the most points at the end of term wins the Cup. These points are examples.",
+    "challenges": [
+      {
+        "id": "farm",
+        "title": "Farm harvest",
+        "category": "food",
+        "rule": "20 points for every kilo picked from the house's own bed on the farm."
+      },
+      {
+        "id": "switch-off",
+        "title": "Switch-off checks",
+        "category": "energy",
+        "rule": "Up to 30 points for each surprise check that finds lights, screens and air-con switched off."
+      },
+      {
+        "id": "living-wall",
+        "title": "Living wall planters",
+        "category": "nature",
+        "rule": "4 points for every planter on the living wall that the house adopts and keeps alive."
+      },
+      {
+        "id": "waste",
+        "title": "Waste and litter",
+        "category": "waste",
+        "rule": "Points for clean recycling bins in the house, and for litter picks around the lake."
+      },
+      {
+        "id": "helping",
+        "title": "Helping out",
+        "category": "community",
+        "rule": "5 points for every hour spent helping a sustainability project."
+      }
+    ],
     "entries": [
       {
+        "name": "Sheppard",
+        "type": "Day house",
+        "image": "images/houses/sheppard.png",
+        "colour": "#6EBF50",
+        "lastWeek": 2,
+        "points": {
+          "farm": 180,
+          "switch-off": 150,
+          "living-wall": 120,
+          "waste": 95,
+          "helping": 75
+        }
+      },
+      {
         "name": "Wallace",
-        "score": 20,
-        "image": ""
+        "type": "Day house",
+        "image": "images/houses/wallace.png",
+        "colour": "#EF9BBF",
+        "lastWeek": 1,
+        "points": {
+          "farm": 160,
+          "switch-off": 130,
+          "living-wall": 110,
+          "waste": 90,
+          "helping": 80
+        }
       },
       {
         "name": "Honan",
-        "score": 18,
-        "image": ""
+        "type": "Boarding house",
+        "image": "images/houses/honan.png",
+        "colour": "#2E522E",
+        "lastWeek": 3,
+        "points": {
+          "farm": 170,
+          "switch-off": 110,
+          "living-wall": 100,
+          "waste": 85,
+          "helping": 70
+        }
       },
       {
         "name": "Thompson",
-        "score": 16,
-        "image": ""
+        "type": "Day house",
+        "image": "images/houses/thompson.png",
+        "colour": "#EF9BBF",
+        "lastWeek": 5,
+        "points": {
+          "farm": 140,
+          "switch-off": 120,
+          "living-wall": 95,
+          "waste": 90,
+          "helping": 60
+        }
       },
       {
         "name": "Wills",
-        "score": 14,
-        "image": ""
+        "type": "Boarding house",
+        "image": "images/houses/wills.jpg",
+        "colour": "#59AEFF",
+        "lastWeek": 4,
+        "points": {
+          "farm": 150,
+          "switch-off": 100,
+          "living-wall": 90,
+          "waste": 80,
+          "helping": 65
+        }
+      },
+      {
+        "name": "Munawir Hill",
+        "type": "Boarding house",
+        "image": "images/houses/munawir-hill.jpg",
+        "colour": "#FFB41B",
+        "lastWeek": 6,
+        "points": {
+          "farm": 120,
+          "switch-off": 115,
+          "living-wall": 85,
+          "waste": 75,
+          "helping": 60
+        }
+      },
+      {
+        "name": "Butler",
+        "type": "Day house",
+        "image": "images/houses/butler.jpg",
+        "colour": "#B6D436",
+        "lastWeek": 8,
+        "points": {
+          "farm": 130,
+          "switch-off": 90,
+          "living-wall": 80,
+          "waste": 85,
+          "helping": 45
+        }
+      },
+      {
+        "name": "Steel",
+        "type": "Boarding house",
+        "image": "images/houses/steel.jpg",
+        "colour": "#C40016",
+        "lastWeek": 7,
+        "points": {
+          "farm": 110,
+          "switch-off": 95,
+          "living-wall": 75,
+          "waste": 70,
+          "helping": 55
+        }
+      },
+      {
+        "name": "Bickerton",
+        "type": "Day house",
+        "image": "images/houses/bickerton.png",
+        "colour": "#DD783A",
+        "lastWeek": 9,
+        "points": {
+          "farm": 100,
+          "switch-off": 85,
+          "living-wall": 70,
+          "waste": 65,
+          "helping": 50
+        }
+      },
+      {
+        "name": "Morley",
+        "type": "Day house",
+        "image": "images/houses/morley.png",
+        "colour": "#DD783A",
+        "lastWeek": 10,
+        "points": {
+          "farm": 90,
+          "switch-off": 80,
+          "living-wall": 65,
+          "waste": 60,
+          "helping": 40
+        }
+      }
+    ],
+    "results": [
+      {
+        "date": "2026-11-13",
+        "house": "Sheppard",
+        "challenge": "switch-off",
+        "points": 30,
+        "text": "A perfect switch-off check: every light, screen and air-con unit off in the common room. Sheppard goes top of the table."
+      },
+      {
+        "date": "2026-11-12",
+        "house": "Honan",
+        "challenge": "farm",
+        "points": 42,
+        "text": "2.1 kg of kangkung and chillies picked from Honan's bed."
+      },
+      {
+        "date": "2026-11-11",
+        "house": "Thompson",
+        "challenge": "waste",
+        "points": 25,
+        "text": "The biggest litter pick around the lake: 6 bags collected."
+      },
+      {
+        "date": "2026-11-10",
+        "house": "Wills",
+        "challenge": "helping",
+        "points": 20,
+        "text": "Four hours helping to fit the new rainwater tank."
+      },
+      {
+        "date": "2026-11-06",
+        "house": "Wallace",
+        "challenge": "living-wall",
+        "points": 24,
+        "text": "Six new planters adopted on the living wall."
+      },
+      {
+        "date": "2026-11-05",
+        "house": "Butler",
+        "challenge": "waste",
+        "points": 15,
+        "text": "Spotless recycling bins at the weekly check."
       }
     ]
   },

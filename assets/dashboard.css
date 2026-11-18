@@ -1759,3 +1759,137 @@ span.involve-qr { display: block; padding: 0; }
 .event-cal .icon { width: 0.85rem; height: 0.85rem; }
 .event-cal:hover { text-decoration: underline; }
 @media print { .event-cal { display: none; } }
+
+/* ---------- The house competition (the "houses" section, and its TV page) ----------
+   Each house has its own colour (--house) from its crest; challenges use the category colours. */
+.crest { --house: var(--border); position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 2.75rem; height: 2.75rem; border-radius: 999px; overflow: hidden; background: var(--surface-2); box-shadow: 0 0 0 2px var(--house); }
+.crest img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 42%; transform: scale(1.55); }
+.crest-letter { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink-head); }
+.cup-mini { width: 2.1rem; height: 2.1rem; }
+.cup-mini .crest-letter { font-size: 1rem; }
+
+.cup-podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; align-items: end; margin-bottom: 1.5rem; }
+.cup-place { --house: var(--border); background: var(--tile); border: 1px solid var(--border); border-top: 0.4rem solid var(--house); min-width: 0; }
+.cup-place.place-1 { order: 2; box-shadow: var(--shadow); }
+.cup-place.place-2 { order: 1; }
+.cup-place.place-3 { order: 3; }
+.cup-banner { position: relative; aspect-ratio: 5 / 3; background: var(--house); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.cup-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cup-banner .crest-letter { font-size: 4rem; color: #fff; }
+.cup-place:not(.place-1) .cup-banner { aspect-ratio: 16 / 9; }
+.cup-medal { position: absolute; top: 0.75rem; left: 0.75rem; padding: 0.3rem 0.75rem; border-radius: 999px; font-weight: 700; font-size: 0.875rem; letter-spacing: 0.04em; background: #fff; color: var(--navy-deep); box-shadow: 0 2px 8px rgba(6, 32, 71, 0.25); }
+.place-1 .cup-medal { background: var(--gold); font-size: 1rem; }
+.cup-place-body { padding: 1.1rem 1.4rem 1.4rem; }
+.cup-name { font-family: var(--font-display); font-weight: 400; font-size: 1.75rem; line-height: 1.1; color: var(--ink-head); }
+.place-1 .cup-name { font-size: 2.25rem; }
+.cup-type { font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+.cup-total { margin-top: 0.75rem; color: var(--ink-2); }
+.cup-total strong { font-size: 2.25rem; line-height: 1; color: var(--ink-head); letter-spacing: -0.02em; }
+.place-1 .cup-total strong { font-size: 2.75rem; }
+.cup-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; margin-top: 0.4rem; font-size: 0.9375rem; color: var(--muted); }
+.cup-leads { margin-top: 0.6rem; font-size: 0.9375rem; color: var(--ink-2); }
+
+.cup-move { display: inline-flex; align-items: center; gap: 0.1rem; font-size: 0.8125rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 999px; white-space: nowrap; }
+.cup-move .icon { width: 0.8rem; height: 0.8rem; }
+.cup-move.is-up { color: var(--good-ink); background: var(--good-soft); }
+.cup-move.is-down { color: var(--bad-ink); background: var(--bad-soft); }
+.cup-move.is-same { color: var(--muted); background: var(--track); }
+
+.cup-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.cup-table h3, .cup-latest h3 { display: flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-weight: 400; font-size: 1.75rem; line-height: 1.1; color: var(--ink-head); margin-bottom: 1rem; }
+.cup-table h3 .icon, .cup-latest h3 .icon { width: 1.4rem; height: 1.4rem; }
+.cup-table-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.5rem 1.5rem; margin-bottom: 0.5rem; }
+.cup-legend { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; list-style: none; font-size: 0.8125rem; color: var(--ink-2); margin-bottom: 1rem; }
+.cup-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.cup-swatch { width: 0.75rem; height: 0.75rem; border-radius: 3px; background: var(--cat-fill); }
+
+.cup-rows { list-style: none; display: flex; flex-direction: column; }
+.cup-row { display: grid; grid-template-columns: 1.6rem 2.6rem 2.75rem minmax(0, 1fr) 3.6rem; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-top: 1px solid var(--border); }
+.cup-row:first-child { border-top: 0; }
+.cup-rank { font-family: var(--font-display); font-size: 1.5rem; color: var(--ink-head); text-align: center; }
+.cup-row.is-first .cup-rank { background: var(--gold); color: var(--navy-deep); border-radius: 999px; font-size: 1.1rem; font-weight: 700; font-family: inherit; line-height: 1.6rem; }
+.cup-move-cell { display: flex; justify-content: center; }
+.cup-row-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem; }
+.cup-row-name { font-family: var(--font-display); font-size: 1.25rem; color: var(--ink-head); line-height: 1.2; min-width: 0; }
+.cup-row-type { margin-left: 0.5rem; font-family: inherit; font-size: 0.75rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.cup-row-score { font-weight: 700; white-space: nowrap; color: var(--ink-head); }
+.cup-gap { font-size: 0.8125rem; color: var(--muted); text-align: right; white-space: nowrap; }
+.cup-row.is-first .cup-gap { color: var(--good-ink); font-weight: 700; }
+.cup-bar { display: flex; height: 0.65rem; background: var(--track); border-radius: 4px; overflow: hidden; }
+.cup-bar > span { display: block; height: 100%; background: var(--cat-fill); border-right: 2px solid var(--tile); min-width: 3px; }
+.cup-bar > span:last-child { border-right: 0; }
+.cup-bar > span:hover { filter: brightness(0.92); }
+
+.cup-results { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+.cup-result { display: flex; gap: 0.8rem; align-items: flex-start; }
+.cup-result-main { min-width: 0; }
+.cup-result-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem 0.6rem; color: var(--ink-head); }
+.cup-plus { font-weight: 700; color: var(--good-ink); background: var(--good-soft); padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.875rem; }
+.cup-result-ch { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--cat); }
+.cup-result-date { font-size: 0.8125rem; color: var(--muted); margin-left: auto; }
+.cup-result-text { font-size: 0.9375rem; color: var(--ink-2); margin-top: 0.2rem; line-height: 1.45; }
+
+.cup-sub { font-family: var(--font-display); font-weight: 400; font-size: 1.75rem; color: var(--ink-head); margin: 2.5rem 0 1rem; }
+.cup-challenges { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 1rem; }
+.cup-challenge { background: var(--tile); border: 1px solid var(--border); border-top: 0.3rem solid var(--cat-fill); padding: 1.2rem 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+.cup-challenge-head { display: flex; align-items: center; gap: 0.6rem; }
+.cup-challenge-head h3 { font-family: var(--font-display); font-weight: 400; font-size: 1.3rem; line-height: 1.15; color: var(--ink-head); }
+.cup-rule { font-size: 0.875rem; color: var(--ink-2); line-height: 1.45; flex: 1; }
+.cup-top { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+.cup-top li { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr) 2.5rem; grid-template-rows: auto auto; column-gap: 0.6rem; align-items: center; }
+.cup-top .crest { grid-row: 1 / 3; }
+.cup-top-name { font-size: 0.9375rem; font-weight: 700; color: var(--ink-head); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cup-top-pts { grid-row: 1 / 3; grid-column: 3; text-align: right; font-weight: 700; font-size: 0.9375rem; color: var(--ink-head); }
+.cup-top-bar { grid-column: 2; height: 0.35rem; background: var(--track); border-radius: 4px; overflow: hidden; }
+.cup-top-bar > span { display: block; height: 100%; background: var(--cat-fill); border-radius: 4px; }
+.cup-note { margin-top: 1.5rem; font-size: 0.9375rem; color: var(--muted); max-width: 48rem; }
+
+.reveal .cup-bar, .reveal .cup-top-bar > span { clip-path: inset(0 100% 0 0); }
+.reveal.is-visible .cup-bar, .reveal.is-visible .cup-top-bar > span { clip-path: inset(0 0 0 0); transition: clip-path 1.2s var(--ease) 0.2s; }
+
+@media (max-width: 60rem) { .cup-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 47.99rem) {
+  .cup-podium { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+  .cup-place.place-1, .cup-place.place-2, .cup-place.place-3 { order: 0; }
+  .cup-place:not(.place-1) .cup-banner { aspect-ratio: 5 / 2; }
+  .cup-row { grid-template-columns: 1.4rem 2.3rem 2.4rem minmax(0, 1fr); gap: 0.55rem; }
+  .cup-row .crest { width: 2.4rem; height: 2.4rem; }
+  .cup-gap { display: none; }
+  .cup-row-type { display: block; margin: 0.1rem 0 0; }
+  .cup-table, .cup-latest { padding: 1.25rem 1rem 1.4rem; }
+  .cup-row-head { flex-wrap: wrap; gap: 0.1rem 0.6rem; }
+  .cup-row-name { font-size: 1.125rem; overflow-wrap: anywhere; }
+  .cup-row-score { font-size: 0.875rem; }
+}
+@media (prefers-reduced-motion: reduce) { .reveal .cup-bar, .reveal .cup-top-bar > span { clip-path: none; } }
+
+/* On the TV: the top three and the latest points on the left, the full table on the right */
+.tv-main.is-houses .panel { min-height: 0; overflow: hidden; padding: 1.3rem 1.6rem; border: 0; }
+.tv-main.is-houses .panel h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.tv-main.is-houses .cup-tv-podium { background: var(--cat-energy-soft); display: flex; flex-direction: column; }
+.tv-main.is-houses .cup-tv-table { background: var(--tile); }
+.cup-tv-season { font-size: var(--tv-label); color: var(--ink-2); margin-bottom: 0.9rem; }
+.tv-main.is-houses .cup-podium { gap: 0.6rem; margin-bottom: 0.9rem; }
+.tv-main.is-houses .cup-place { box-shadow: none; }
+.tv-main.is-houses .cup-place-body { padding: 0.55rem 0.7rem 0.7rem; }
+.tv-main.is-houses .cup-name { font-size: 1.15rem; }
+.tv-main.is-houses .place-1 .cup-name { font-size: 1.35rem; }
+.tv-main.is-houses .cup-type, .tv-main.is-houses .cup-leads { display: none; }
+.tv-main.is-houses .cup-total { margin-top: 0.3rem; font-size: var(--tv-label); }
+.tv-main.is-houses .cup-total strong { font-size: 1.5rem; }
+.tv-main.is-houses .place-1 .cup-total strong { font-size: 1.75rem; }
+.tv-main.is-houses .cup-meta { font-size: 0.8rem; gap: 0.35rem; margin-top: 0.2rem; }
+.tv-main.is-houses .cup-medal { top: 0.4rem; left: 0.4rem; padding: 0.15rem 0.5rem; font-size: 0.75rem; }
+.tv-main.is-houses .cup-results { gap: 0; }
+.tv-main.is-houses .cup-result-text { font-size: var(--tv-text); }
+.tv-main.is-houses .cup-legend { margin-bottom: 0.4rem; font-size: var(--tv-label); }
+.tv-main.is-houses .cup-rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: column; grid-template-rows: repeat(5, auto); column-gap: 2rem; }
+.tv-main.is-houses .cup-row { grid-template-columns: 1.6rem 2.4rem 2.6rem minmax(0, 1fr); padding: 0.45rem 0; border-top: 1px solid var(--border); }
+.tv-main.is-houses .cup-row:nth-child(6) { border-top: 0; }
+.tv-main.is-houses .cup-gap { display: none; }
+.tv-main.is-houses .cup-row .crest { width: 2.6rem; height: 2.6rem; }
+.tv-main.is-houses .cup-row-name { font-size: 1.2rem; }
+.tv-main.is-houses .cup-row-type { display: none; }
+.tv-main.is-houses .cup-row-score { font-size: 1.05rem; }
+.tv-main.is-houses .cup-bar { height: 0.6rem; }
+.tv .cup-tv-podium .panel-icon, .tv .cup-tv-table .panel-icon { display: none; }
